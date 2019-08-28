@@ -1,10 +1,9 @@
 require 'oystercard'
+
 describe Oystercard do
   it 'has a default balance of zero' do
     expect(subject.balance).to eq 0
   end
-
-  it { is_expected.to respond_to(:top_up).with(1).argument }
 
   describe '#top_up' do
     it 'raises an error if the maximum balance is exceeded' do
@@ -14,22 +13,19 @@ describe Oystercard do
     end
   end
 
-  it { is_expected.to respond_to(:deduct).with(1).argument }
-
   describe '#deduct' do
     it 'deducts an amount from the balance' do
       subject.top_up(10)
-      expect { subject.deduct(3) }.to change{ subject.balance }.by -3
+      expect { subject.deduct(3) }.to change { subject.balance }.by -3
     end
   end
-
-  it { is_expected.to respond_to(:in_journey?) }
 
   describe '#touch_in' do
     it 'raises error if balance less than 1' do
       minimum_balance = Oystercard::MINIMUM_BALANCE
-      expect { subject.touch_in }.to raise_error "Minimum balance 1 required"
+      expect { subject.touch_in }.to raise_error "Minimum balance #{minimum_balance} required"
     end
+
     it 'puts oystercard in use' do
       subject.top_up(1)
       subject.touch_in
@@ -45,6 +41,4 @@ describe Oystercard do
       expect(subject.in_journey?).to be(false)
     end
   end
-
-
 end
