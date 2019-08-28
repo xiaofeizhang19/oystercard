@@ -1,9 +1,16 @@
 require 'oystercard'
 
-describe Oystercard do
-  let(:entry_station) { double('Station') }
-  let(:exit_station) { double('Station') }
-  let(:journey) { { entry_station: entry_station, exit_station: exit_station } }
+describe Oystercard, :aggregate_failures do
+  let(:entry_station) { instance_double('Station') }
+  let(:exit_station) { instance_double('Station') }
+
+  def touch_in
+    subject.touch_in(entry_station)
+  end
+
+  def touch_out
+    subject.touch_out(exit_station)
+  end
 
   it 'has a default balance of zero' do
     expect(subject.balance).to eq 0
@@ -19,13 +26,20 @@ describe Oystercard do
 
   def top_up_and_touch_in
     subject.top_up(5)
-    subject.touch_in(entry_station)
+    touch_in
   end
 
   describe '#touch_in' do
     it 'raises error if balance less than 1' do
       minimum_balance = Oystercard::MINIMUM_BALANCE
-      expect { subject.touch_in(entry_station) }.to raise_error "Minimum balance #{minimum_balance} required"
+      expect { touch_in }.to raise_error "Minimum balance #{minimum_balance} required"
+    end
+
+    it 'deducts penalty if not touched out' do
+      subject.top_up(10)
+      touch_in
+      penalty = Oystercard::PENALTY_CHARGE
+      expect { touch_in }.to change { subject.balance }.by(-penalty)
     end
 
     it 'puts oystercard in use' do
@@ -43,13 +57,27 @@ describe Oystercard do
 
     it 'deduct the balance by minimum fare' do
       top_up_and_touch_in
-      expect { subject.touch_out(exit_station) }.to change { subject.balance }.by -1
+      expect { touch_out }.to change { subject.balance }.by(-1)
+    end
+
+    it 'deducts penalty if touched out' do
+      penalty = Oystercard::PENALTY_CHARGE
+      expect { touch_out }.to change { subject.balance }.by(-penalty)
+    end
+
+    it 'should not store journey if touched out' do
+      touch_out
+      expect(subject.journeys).to be_empty
     end
 
     it 'should store journey' do
       top_up_and_touch_in
       subject.touch_out(exit_station)
-      expect(subject.journeys).to include journey
+      journeys = subject.journeys
+
+      expect(journeys.size).to be 1
+      expect(journeys.first.entry_station).to eq entry_station
+      expect(journeys.first.exit_station).to eq exit_station
     end 
   end
 end
