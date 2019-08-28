@@ -1,6 +1,8 @@
 require 'oystercard'
 
 describe Oystercard do
+  let(:station) { double('Station') }
+
   it 'has a default balance of zero' do
     expect(subject.balance).to eq 0
   end
@@ -21,7 +23,7 @@ describe Oystercard do
   describe '#touch_in' do
     it 'raises error if balance less than 1' do
       minimum_balance = Oystercard::MINIMUM_BALANCE
-      expect { subject.touch_in('') }.to raise_error "Minimum balance #{minimum_balance} required"
+      expect { subject.touch_in(station) }.to raise_error "Minimum balance #{minimum_balance} required"
     end
 
     it 'puts oystercard in use' do
@@ -31,8 +33,8 @@ describe Oystercard do
 
     it 'should store entry station' do
       subject.top_up(5)
-      subject.touch_in('station')
-      expect(subject.station).to eq 'station'
+      subject.touch_in(station)
+      expect(subject.station).to eq station
     end
   end
 
