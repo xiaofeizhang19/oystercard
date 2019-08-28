@@ -20,6 +20,11 @@ describe Oystercard do
     end
   end
 
+  def top_up_and_touch_in
+    subject.top_up(5)
+    subject.touch_in
+  end
+
   describe '#touch_in' do
     it 'raises error if balance less than 1' do
       minimum_balance = Oystercard::MINIMUM_BALANCE
@@ -27,18 +32,21 @@ describe Oystercard do
     end
 
     it 'puts oystercard in use' do
-      subject.top_up(1)
-      subject.touch_in
+      top_up_and_touch_in
       expect(subject.in_journey?).to be(true)
     end
   end
 
   describe '#touch_out' do
     it 'puts oystercard not in use' do
-      subject.top_up(1)
-      subject.touch_in
+      top_up_and_touch_in
       subject.touch_out
       expect(subject.in_journey?).to be(false)
+    end
+
+    it 'deduct the balance by minimum fare' do
+      top_up_and_touch_in
+      expect { subject.touch_out }.to change { subject.balance }.by(-1)
     end
   end
 end
