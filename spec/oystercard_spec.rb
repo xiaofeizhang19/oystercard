@@ -1,7 +1,9 @@
 require 'oystercard'
 
 describe Oystercard do
-  let(:station) { double('Station') }
+  let(:entry_station) { double('Station') }
+  let(:exit_station) { double('Station') }
+  let(:journey) { { entry_station: entry_station, exit_station: exit_station } }
 
   it 'has a default balance of zero' do
     expect(subject.balance).to eq 0
@@ -17,42 +19,37 @@ describe Oystercard do
 
   def top_up_and_touch_in
     subject.top_up(5)
-    subject.touch_in(at: '')
+    subject.touch_in(entry_station)
   end
 
   describe '#touch_in' do
     it 'raises error if balance less than 1' do
       minimum_balance = Oystercard::MINIMUM_BALANCE
-      expect { subject.touch_in(station) }.to raise_error "Minimum balance #{minimum_balance} required"
+      expect { subject.touch_in(entry_station) }.to raise_error "Minimum balance #{minimum_balance} required"
     end
 
     it 'puts oystercard in use' do
       top_up_and_touch_in
       expect(subject.in_journey?).to be(true)
     end
-
-    it 'should store entry station' do
-      subject.top_up(5)
-      subject.touch_in(station)
-      expect(subject.station).to eq station
-    end
   end
 
   describe '#touch_out' do
     it 'puts oystercard not in use' do
       top_up_and_touch_in
-      subject.touch_out
+      subject.touch_out(exit_station)
       expect(subject.in_journey?).to be(false)
     end
 
     it 'deduct the balance by minimum fare' do
       top_up_and_touch_in
-      expect { subject.touch_out }.to change { subject.balance }.by -1
+      expect { subject.touch_out(exit_station) }.to change { subject.balance }.by -1
     end
 
-    it 'should remove entry station' do
+    it 'should store journey' do
       top_up_and_touch_in
-      expect { subject.touch_out }.to change { subject.station }.to nil
-    end
+      subject.touch_out(exit_station)
+      expect(subject.journeys).to include journey
+    end 
   end
 end
