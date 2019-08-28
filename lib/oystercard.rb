@@ -1,5 +1,6 @@
 class Oystercard
   attr_reader :balance
+  attr_reader :station
 
   DEFAULT_BALANCE = 0
   MAXIMUM_BALANCE = 90
@@ -19,9 +20,10 @@ class Oystercard
     @in_journey
   end
 
-  def touch_in
+  def touch_in(station)
     raise_if_low_balance
 
+    @station = station
     @in_journey = true
   end
 
