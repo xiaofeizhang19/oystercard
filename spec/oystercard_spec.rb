@@ -47,7 +47,12 @@ describe Oystercard do
 
     it 'deduct the balance by minimum fare' do
       top_up_and_touch_in
-      expect { subject.touch_out }.to change { subject.balance }.by(-1)
+      expect { subject.touch_out }.to change { subject.balance }.by -1
+    end
+
+    it 'should remove entry station' do
+      top_up_and_touch_in
+      expect { subject.touch_out }.to change { subject.station }.to nil
     end
   end
 end

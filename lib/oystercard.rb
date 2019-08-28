@@ -17,19 +17,18 @@ class Oystercard
   end
 
   def in_journey?
-    @in_journey
+    !@station.nil?
   end
 
   def touch_in(station)
     raise_if_low_balance
 
     @station = station
-    @in_journey = true
   end
 
   def touch_out
     deduct(MINIMUM_BALANCE)
-    @in_journey = false
+    @station = nil
   end
 
   private
