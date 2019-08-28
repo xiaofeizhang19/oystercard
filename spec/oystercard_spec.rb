@@ -13,13 +13,6 @@ describe Oystercard do
     end
   end
 
-  describe '#deduct' do
-    it 'deducts an amount from the balance' do
-      subject.top_up(10)
-      expect { subject.deduct(3) }.to change { subject.balance }.by -3
-    end
-  end
-
   def top_up_and_touch_in
     subject.top_up(5)
     subject.touch_in

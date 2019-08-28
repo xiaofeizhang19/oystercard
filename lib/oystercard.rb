@@ -15,10 +15,6 @@ class Oystercard
     @balance += amount
   end
 
-  def deduct(amount)
-    @balance -= amount
-  end
-
   def in_journey?
     @in_journey
   end
@@ -35,6 +31,10 @@ class Oystercard
   end
 
   private
+
+  def deduct(amount)
+    @balance -= amount
+  end
 
   def raise_if_low_balance
     raise 'Minimum balance 1 required' if low_balance?
